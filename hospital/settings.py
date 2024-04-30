@@ -114,7 +114,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Email Auth
-APP_PASS = ""   # Add APP Password
+APP_PASS = ""   # Add APP Password for gmail
 HOST = "" # Email
 
 

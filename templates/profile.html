@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <div class="logo-cont">
+                <img src="/static/img/logo2.png" alt="">
+            </div>
+            <h3 id="login-head"> Choose Profile Picture</h3>
+
+            {% csrf_token %}
+            <img src="/static/img/man.png" class="profile-pic" alt="me" id="output" class="user-img">
+            <!-- <input id="file" class="fileimg" type="file" onchange="loadFile(event)" /> -->
+
+            <label for="file-upload" id="file-upload-labl" class="custom-file-upload">
+                Upload Profile
+            </label>
+            <input id="file-upload" type="file" onchange="loadFile(event)" />
+
+            <a href="/" class="next" id="next">Next</a>
+
+        </div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Google Sans, Noto Sans Myanmar UI, arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            /* justify-content: center; */
+            margin-top: 50px;
+            align-items: center;
+            /* height: 100%; */
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgb(170, 167, 167);
+            width: 400px;
+            border-radius: 12px;
+            padding: 40px;
+            align-items: center;
+        }
+
+        .logo-cont {
+            margin-bottom: 20px;
+        }
+
+        .logo-cont img {
+            width: 220px;
+        }
+
+        .form-container h3 {
+            font-size: 25px;
+        }
+
+
+
+        .profile-pic {
+            display: flex;
+            border: 1px solid rgb(170, 167, 167);
+            margin-top: 40px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            justify-content: center;
+            padding: 0px;
+        }
+
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            margin-top: 12px;
+            border: 1px solid rgb(170, 167, 167);
+            display: inline-block;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            background-color: #d1d1d1;
+        }
+
+
+        .next {
+            margin-top: 12px;
+            border: 1px solid rgb(170, 167, 167);
+            padding: 8px 40px;
+            cursor: pointer;
+            border-radius: 6px;
+            background-color: #d1d1d1;
+            text-decoration: none;
+            display: none;
+        }
+    </style>
+
+    <script>
+        async function loadFile(event) {
+            var image = document.getElementById("output");
+            image.src = URL.createObjectURL(event.target.files[0]);
+
+            let formData = new FormData();
+            let photo = event.target.files[0];
+            let crf = document.getElementsByName("csrfmiddlewaretoken")[0];
+
+
+            formData.append("photo", photo);
+            formData.append("csrfmiddlewaretoken", crf.value)
+
+            const ctrl = new AbortController()    // timeout
+            setTimeout(() => ctrl.abort(), 5000);
+
+            try {
+                let r = await fetch('/profile',
+                    { method: "POST", body: formData, signal: ctrl.signal });
+                console.log('HTTP response code:', r.status);
+                
+                document.getElementById("file-upload-labl").style.display = "none";
+                document.getElementById("next").style.display = "inline";
+
+                
+            } catch (e) {
+                console.log(' problem...:', e);
+            }
+
+        };
+    </script>
+</body>
+
+</html>

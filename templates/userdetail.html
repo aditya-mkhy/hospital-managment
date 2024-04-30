@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan</title>
+</head>
+
+<body>
+    <div class="main-cont-change">
+        <div class="init-details-form">
+            <div class="logo-cont">
+                <img src="/static/img/logo2.png" alt="">
+            </div>
+            <h3> Basic  Information</h3>
+            <p id="msgp">Enter your name and Address</p>
+            {% if message %}
+            {% for messag in message %}
+
+            <div class="alert warning">
+                <span class="closebtn">&times;</span>
+                <strong>{{prefix}}</strong> {{messag}}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form action="/signup" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="token" value="{{token}}">
+                <input type="hidden" name="authkey" value="{{authkey}}">
+                <input type="hidden" name="postaction" id="postaction" value="userdetails">
+                <div class="input-contain input-contain-1">
+                    <input type="text" id="fname" name="fname" autocomplete="off" value=""
+                        aria-labelledby="placeholder-fname">
+                    <label class="placeholder-text" for="fname" id="placeholder-fname">
+                        <div class="text">First Name</div>
+                    </label>
+                </div>
+
+                <div class="input-contain">
+                    <input type="text" id="lname" name="lname" autocomplete="off" value=""
+                        aria-labelledby="placeholder-lname">
+                    <label class="placeholder-text" for="lname" id="placeholder-lname">
+                        <div class="text">Last Name</div>
+                    </label>
+                </div>
+
+
+                <div class="input-contain">
+                    <input type="text" id="line1" name="line1" autocomplete="off" value=""
+                        aria-labelledby="placeholder-line1">
+                    <label class="placeholder-text" for="line1" id="placeholder-line1">
+                        <div class="text">Address</div>
+                    </label>
+                </div>
+                
+                <div class="address-cont">
+
+                    <div class="input-contain">
+
+                        <input type="text" class="date-input" id="city" name="city" autocomplete="off" value=""
+                         required>
+
+                        <label class="placeholder-text" for="city" id="placeholder-city">
+                            <div class="text">City</div>
+                        </label>
+                    </div>
+
+                    <div class="input-contain">
+
+                        <input type="text" class="date-input" id="dobid" name="zip" autocomplete="off" value=""
+                         required>
+
+                        <label class="placeholder-text" for="dobid" id="placeholder-dobid">
+                            <div class="text">Pin Code</div>
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="input-contain state-cont">
+                    <input type="text" id="state" name="state" autocomplete="off" value=""
+                        aria-labelledby="placeholder-state">
+                    <label class="placeholder-text" for="state" id="placeholder-state">
+                        <div class="text">State</div>
+                    </label>
+                </div>
+            
+                <div class="next-button-cont">
+                    <input type="submit" class="next-button" value="Next">
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Google Sans, Noto Sans Myanmar UI, arial, sans-serif;
+        }
+
+
+
+
+
+        .main-cont-change {
+            display: flex;
+            flex-direction: column;
+            /* justify-content: center; */
+            margin-top: 80px;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .init-details-form {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgb(170, 167, 167);
+            width: 400px;
+            height: 500px;
+            border-radius: 12px;
+            padding: 30px;
+            align-items: center;
+
+        }
+
+        .init-details-form h3 {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .init-details-form p {
+            text-align: center;
+            margin-bottom:20px;
+        }
+
+
+        .input-contain {
+            position: relative;
+            margin-top: 30px;
+        }
+
+        .input-contain-1 {
+            margin-top: 0px;
+            margin-bottom: -20px;
+        }
+
+        input,
+        .gender-input {
+            height: 42px;
+            width: 340px;
+            border: 1px solid rgb(180, 177, 177);
+            border-radius: 6px;
+            padding: 0px 12px;
+            background-color: inherit;
+        }
+
+        input:focus,
+        .gender-input:focus {
+            outline: none;
+            border: 2px solid #0065ff;
+        }
+
+        input:focus+.placeholder-text .text,
+        .gender-input:focus .placeholder-text .text,
+        :not(input[value=""])+.placeholder-text .text,
+        #dobid:valid+.placeholder-text .text  {
+            background-color: white;
+            color: black;
+            transform: translate(0, -125%);
+            padding: 0px 4px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+
+
+        input:focus+.placeholder-text .text,
+        .gender-input:focus+.placeholder-text .text {
+            border-color: #0065ff;
+            color: #0065ff;
+            padding: 0px 4px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+
+        .placeholder-text {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: transparent;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+
+        }
+
+        .text {
+            padding: 0 8px;
+            /* transform: translate(0); */
+            color: rgb(54, 53, 53);
+            transition: transform 0.15s ease-out, font-size 0.15s ease-out, background-color 0.2s ease-out, color 0.15s ease-out;
+        }
+
+        input,
+        .placeholder-text,
+        .gender-input {
+            font-size: 18px;
+        }
+
+        gender-input .logo-cont {
+            margin-bottom: 30px;
+        }
+
+        .logo-cont img {
+            width: 120px;
+        }
+
+        .next-button-cont {
+            display: flex;
+            flex-direction: row-reverse;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .next-button {
+            width: 90px;
+            border-radius: 6px;
+            height: 38px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            color: white;
+
+            background-color: #0065ff;
+        }
+
+        .next-button:focus {
+            outline: none;
+            border: none;
+        }
+
+        .address-cont {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .gender-input:focus option:first-of-type {
+            display: none;
+        }
+
+        .gender-input {
+            width: 140px;
+            /* appearance: none; */
+            color: black;
+            cursor: pointer;
+        }
+
+        .date-input {
+
+            width: 160px;
+        }
+
+        input[type=date]:required:invalid::-webkit-datetime-edit {
+            color: transparent;
+            background-color: transparent;
+
+        }
+
+        input[type=date]:focus::-webkit-datetime-edit {
+            color: black !important;
+        }
+
+        .alert.warning {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            text-align: left;
+            box-sizing: border-box;
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: .25rem;
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            /* margin-top: 1rem; */
+            position: relative;
+            width: 340px;
+        }
+
+
+        .closebtn {
+            color: rgb(0, 0, 0);
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            margin-right: -10px;
+            margin-top: -5px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s all ease;
+            z-index: 1;
+        }
+
+        .closebtn:hover {
+            color: rgb(255, 0, 0);
+        }
+
+        .address-cont {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-between;
+            margin-top: -20px;
+            
+        }
+
+
+        .state-cont {
+            margin-top: 10px;
+        }
+
+        @media screen and (max-width : 430px) {
+            .main-cont-change {
+                margin-top: 0px;
+                width: 100%;
+            }
+
+            .init-details-form {
+                border: none;
+                width: 100%;
+                border-radius: none;
+                padding: 30px;
+                align-items: center;
+            }
+        }
+
+
+        @media screen and (max-width : 360px) {
+            .main-cont-change {
+                margin-top: 0px;
+                width: 100%;
+            }
+
+            .init-details-form {
+                padding: 10px;
+                width: 100%;
+            }
+
+            form {
+                width: 100%;
+            }
+
+            .input-contain {
+                width: 100%;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            .alert.warning {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+
+        let input_element = document.querySelectorAll("input");
+        let ptag_msg = document.getElementById("msgp");
+
+        ptag_msg.className
+        {% if messages %}
+        ptag_msg.style.display = "none";
+
+        {% endif %}
+
+        input_element.forEach(elmt => {
+            elmt.addEventListener("keyup", () => {
+                elmt.setAttribute("value", elmt.value);
+            })
+        });
+
+
+        var close = document.getElementsByClassName("closebtn");
+        var i;
+        for (i = 0; i < close.length; i++) {
+            close[i].onclick = function () {
+                var div = this.parentElement;
+                div.style.display = "none";
+                div.style.opacity = "0";
+                ptag_msg.style.display = "block";
+
+            }
+        }
+    </script>
+</body>
+
+</html>

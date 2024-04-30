@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <div class="logo-cont">
+                <img src="/static/img/logo2.png" alt="">
+            </div>
+            <h3 id="login-head"> Sign In </h3>
+
+            {% if message %}
+
+            <div class="alert warning" id="message">
+                <span class="closebtn" onclick="closeBtn(this)">&times;</span>
+                <strong>{{prefix}}</strong> {{message}}
+            </div>
+            {% endif %}
+
+            <form action="/login" method="post" class="form">
+                {% csrf_token %}
+
+                <!-- <input type="hidden" name="token" id="token" value="{{token}}"> -->
+                <div class="input-contain input-contain-1">
+                    <input type="email" id="email" name="email" autocomplete="on" value=""
+                        aria-labelledby="placeholder-email" required>
+                    <label class="placeholder-text" for="email" id="placeholder-email">
+                        <div class="text">Email</div>
+                    </label>
+                </div>
+
+                <div class="input-contain">
+                    <input type="password" id="passwd" name="password" autocomplete="off" value=""
+                        aria-labelledby="placeholder-passwd">
+                    <label class="placeholder-text" for="passwd" id="placeholder-passwd">
+                        <div class="text">Password</div>
+                    </label>
+                    <i id="eyeb" class='bx bxs-hide' onclick="show_hide_passwd(this)"></i>
+                </div>
+                <div class="forgot-link">
+                    <a href="/forgot">Forgot Password</a>
+                </div>
+
+                <input type="submit" value="Login" class="submit-btn">
+
+            </form>
+            <div class="signUp" style="margin-top: 30px;">
+
+                <a href="/signup" style="color: #ff652f;font-size: 15px;">Sign Up</a>&nbspor&nbsp<a href="/contact"
+                    style="color:rgb(46, 146, 146);font-size: 0.9em; font-style: italic; ">Contact
+                    Us </a>
+            </div>
+
+
+        </div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Google Sans, Noto Sans Myanmar UI, arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            /* justify-content: center; */
+            margin-top: 50px;
+            align-items: center;
+            /* height: 100%; */
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgb(170, 167, 167);
+            width: 380px;
+            border-radius: 12px;
+            padding: 40px;
+            align-items: center;
+        }
+
+        .logo-cont {
+            margin-bottom: 20px;
+        }
+
+       
+        .form-container #login-head {
+            font-size: 28px;
+            /* justify-content: center; */
+            text-align: center;
+            /* background-color: aqua; */
+            /* width: 100%; */
+            margin-bottom: 20px;
+        }
+
+        .input-contain {
+            position: relative;
+            margin-top: 30px;
+        }
+
+        .input-contain-1 {
+            margin-top: 0px;
+        }
+
+
+        input {
+            height: 42px;
+            width: 340px;
+            border: 1px solid rgb(180, 177, 177);
+            border-radius: 6px;
+            padding: 0px 12px;
+            background-color: inherit;
+            padding-right: 40px;
+        }
+
+        .input-contain i {
+            position: absolute;
+            margin-left: -35px;
+            font-size: 24px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        input:focus {
+            outline: none;
+            border: 2px solid #0065ff;
+        }
+
+        input:focus+.placeholder-text .text,
+        :not(input[value=""])+.placeholder-text .text {
+            background-color: white;
+            color: black;
+            transform: translate(0, -125%);
+            padding: 0px 4px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+
+
+        input:focus+.placeholder-text .text {
+            border-color: #0065ff;
+            color: #0065ff;
+            padding: 0px 4px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+
+        .placeholder-text {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: transparent;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+
+        }
+
+        .text {
+            padding: 0 8px;
+            /* transform: translate(0); */
+            color: rgb(54, 53, 53);
+            transition: transform 0.15s ease-out, font-size 0.15s ease-out, background-color 0.2s ease-out, color 0.15s ease-out;
+        }
+
+        input,
+        .placeholder-text {
+            font-size: 18px;
+        }
+
+        gender-input .logo-cont {
+            margin-bottom: 30px;
+        }
+
+        .logo-cont img {
+            width: 160px;
+            margin-left: -20px;
+        }
+
+        .forgot-link {
+            text-align: right;
+            margin-top: 4px;
+            /* transform: translateY(-10px); */
+
+        }
+
+        .forgot-link a {
+            color: #0065ff;
+            font-size: 0.95em;
+            /* text-decoration: none; */
+
+        }
+
+        .submit-btn {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 32px;
+
+            border: none;
+            outline: none;
+            background: #3b87f9;
+            font-size: 1.3rem;
+            font-weight: 500;
+            /* width: 220px; */
+            letter-spacing: 1px;
+
+            padding: 10px 50px;
+            border-radius: 20px;
+            cursor: pointer;
+
+            justify-content: center;
+            align-items: center;
+            color: white;
+
+
+
+        }
+
+        .alert.warning {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            text-align: left;
+            box-sizing: border-box;
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: .25rem;
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            /* margin-top: 1rem; */
+            position: relative;
+            width: 340px;
+            margin-top: -10px;
+
+        }
+
+
+        .closebtn {
+            color: rgb(0, 0, 0);
+            font-weight: bold;
+            float: right;
+            font-size: 24px;
+            margin-right: -10px;
+            margin-top: -5px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s all ease;
+            z-index: 1;
+        }
+
+        .closebtn:hover {
+            color: rgb(255, 0, 0);
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:focus {
+            transition: background-color 600000s 0s, color 600000s 0s;
+        }
+
+        input[data-autocompleted] {
+            background-color: transparent !important;
+        }
+
+        @media screen and (max-width : 430px) {
+            .container {
+                margin-top: 0px;
+                width: 100%;
+            }
+
+            .form-container {
+                border: none;
+                width: 100%;
+                border-radius: none;
+                padding: 30px;
+                align-items: center;
+            }
+        }
+
+        @media screen and (max-width : 360px) {
+            .container {
+                margin-top: 40px;
+                width: 100%;
+            }
+
+            .form-container {
+                padding: 10px;
+                width: 100%;
+            }
+
+            form {
+                width: 100%;
+            }
+
+            .input-contain {
+                width: 100%;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            .alert.warning {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        const passwd = document.getElementById("passwd");
+
+        function show_hide_passwd(elmt) {
+            if (elmt.className == "bx bxs-hide") {
+                passwd.type = "text";
+                elmt.className = "bx bxs-show";
+            }
+
+            else {
+                passwd.type = "password";
+                elmt.className = "bx bxs-hide";
+            }
+
+        }
+
+        let input_element = document.querySelectorAll("input");
+
+        input_element.forEach(elmt => {
+            elmt.addEventListener("keyup", () => {
+                elmt.setAttribute("value", elmt.value);
+            })
+        });
+
+        function closeBtn(elmt) {
+            var div = elmt.parentElement;
+            div.style.display = "none";
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>SignUp</title>
+</head>
+
+<body>
+    <div class="main-cont-change">
+        <div class="init-details-form">
+            <div class="logo-cont">
+                <img src="/static/img/logo2.png" alt="">
+            </div>
+            <h3> Create an Account</h3>
+            {% if message %}
+
+            <div class="alert warning" id="message">
+                <span class="closebtn" onclick="closeBtn(this)">&times;</span>
+                <strong>{{prefix}}</strong> {{message}}
+            </div>
+            {% endif %}
+            <form action="javascript:formhandle()" method="post" id="formdataid">
+                {% csrf_token %}
+                <input type="hidden" name="postaction" id="postaction" value="username">
+                <input type="hidden" name="authkey" id="authkey" value="init">
+                <input type="hidden" name="token" id="token" value="{{token}}">
+                <div class="input-contain input-contain-1">
+                    <input type="email" id="email" name="email" autocomplete="on" value=""
+                        aria-labelledby="placeholder-email" required>
+                    <label class="placeholder-text" for="email" id="placeholder-email">
+                        <div class="text">Email</div>
+                    </label>
+                </div>
+
+                <div class="input-contain" id="phonenumdiv">
+                    <input type="text" id="username" name="username" autocomplete="off" value=""
+                        aria-labelledby="placeholder-username">
+                    <label class="placeholder-text" for="username" id="placeholder-username">
+                        <div class="text">Username</div>
+                    </label>
+                </div>
+
+                <div class="next-button-cont">
+
+                    <button type="submit" class="next-button"><i class='loading bx bx-loader-circle' id="spinner"></i>
+                        <p id="submitbut">Verify</p>
+                    </button>
+
+                    <div class="input-contain-otp" id="input-contain-otp">
+                        <input type="number" class="otp-field-input" id="otp" name="otp" autocomplete="off" value=""
+                            aria-labelledby="placeholder-otp">
+                        <label class="placeholder-text otp-field-label" for="otp" id="placeholder-otp">
+                            <div class="text">OTP</div>
+                        </label>
+                    </div>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Google Sans, Noto Sans Myanmar UI, arial, sans-serif;
+        }
+
+
+
+        .main-cont-change {
+            display: flex;
+            flex-direction: column;
+            /* justify-content: center; */
+            margin-top: 80px;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .init-details-form {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgb(170, 167, 167);
+            width: 400px;
+            height: 500px;
+            border-radius: 12px;
+            padding: 30px;
+            align-items: center;
+
+        }
+
+        .init-details-form h3 {
+            font-size: 25px;
+            margin-bottom: 25px;
+
+        }
+
+
+        .input-contain {
+            position: relative;
+            margin-top: 30px;
+        }
+
+        .input-contain-1 {
+            margin-top: 0px;
+        }
+
+        input {
+            height: 42px;
+            width: 340px;
+            border: 1px solid rgb(180, 177, 177);
+            border-radius: 6px;
+            padding: 0px 12px;
+            background-color: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border: 2px solid #0065ff;
+        }
+
+        input:focus+.placeholder-text .text,
+        :not(input[value=""])+.placeholder-text .text {
+            background-color: white;
+            font-size: 15px;
+            color: black;
+            transform: translate(0, -125%);
+            padding: 0px 4px;
+            margin-left: 10px;
+            font-size: 14px;
+
+        }
+
+
+        input:focus+.placeholder-text .text {
+            border-color: #0065ff;
+            color: #0065ff;
+            padding: 0px 4px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .placeholder-text {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: transparent;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+
+        }
+
+        .text {
+            padding: 0 8px;
+            /* transform: translate(0); */
+            color: black;
+            transition: transform 0.15s ease-out, font-size 0.15s ease-out, background-color 0.2s ease-out, color 0.15s ease-out;
+        }
+
+        input,
+        .placeholder-text {
+            font-size: 18px;
+        }
+
+        .logo-cont {
+            margin-bottom: 20px;
+        }
+
+        .logo-cont img {
+            width: 150px;
+            margin-left: -20px;
+        }
+
+        .next-button-cont {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .next-button {
+            width: 110px;
+            border-radius: 6px;
+            height: 38px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            background-color: #0065ff;
+        }
+
+        .next-button:focus {
+            outline: none;
+            border: none;
+        }
+
+        .input-contain-otp {
+            position: relative;
+            margin-top: -2px;
+            display: none;
+        }
+
+        .otp-field-input {
+            width: 150px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+
+        .alert.warning {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            text-align: left;
+            box-sizing: border-box;
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: .25rem;
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            /* margin-top: 1rem; */
+            position: relative;
+            width: 340px;
+            margin-top: -20px;
+
+        }
+
+
+        .closebtn {
+            color: rgb(0, 0, 0);
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            margin-right: -10px;
+            margin-top: -5px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s all ease;
+            z-index: 1;
+        }
+
+        .closebtn:hover {
+            color: rgb(255, 0, 0);
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:focus {
+            transition: background-color 600000s 0s, color 600000s 0s;
+        }
+        input[data-autocompleted] {
+            background-color: transparent !important;
+        }
+        .loading {
+            -webkit-animation: loading 2s infinite linear;
+            animation: loading 2s infinite linear;
+            font-size: 30px;
+            /* z-index: 20; */
+            position: relative;
+        }
+
+
+
+        @keyframes loading {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg)
+            }
+
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg)
+            }
+        }
+
+        @media screen and (max-width : 430px) {
+            .main-cont-change {
+                margin-top: 0px;
+                width: 100%;
+            }
+
+            .init-details-form {
+                border: none;
+                width: 100%;
+                border-radius: none;
+                padding: 30px;
+                align-items: center;
+            }
+        }
+
+
+        @media screen and (max-width : 360px) {
+            .main-cont-change {
+                margin-top: 0px;
+                width: 100%;
+            }
+
+            .init-details-form {
+                padding: 10px;
+                width: 100%;
+            }
+
+            form {
+                width: 100%;
+            }
+
+            .input-contain {
+                width: 100%;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            .alert.warning {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        let input_element = document.querySelectorAll("input");
+        const email_field = document.getElementById("email");
+        const authkey = document.getElementById("authkey");
+        const otpinput = document.getElementById("otp");
+        const otpdiv = document.getElementById("input-contain-otp");
+        const submitbut = document.getElementById("submitbut");
+        const phonenumdiv = document.getElementById("phonenumdiv");
+        const placeholderotp = document.getElementById("placeholder-otp");
+        const formdataid = document.getElementById("formdataid");
+        const tokenid = document.getElementById("token");
+
+        const message = document.getElementById("message")
+        phonenumdiv.style.display = "none";
+
+        const spinner = document.getElementById("spinner");
+        spinner.style.display = 'none';
+
+
+        input_element.forEach(elmt => {
+            elmt.addEventListener("keyup", () => {
+                elmt.setAttribute("value", elmt.value);
+            })
+        });
+
+        async function formhandle() {
+            console.log("form is submitted");
+            let email = email_field.value;
+            console.log("eamil==> ", email);
+
+            let key = authkey.value;
+
+            if (key == "init") {
+                console.log("sending otp");
+                email_field.readOnly = true;
+
+                spinner.style.display = 'block';
+                submitbut.innerText = "";
+
+                data = await sendCommandToServer("addemail", tokenid.value, "init", email)
+
+                if (data != 0) {
+
+                    if (data['status'] == "error") {
+                        spinner.style.display = 'none';
+                        submitbut.innerText = "Error";
+                        formdataid.setAttribute("action", "none")
+                        message.innerHTML = "<span class='closebtn' onclick='closeBtn(this)'>&times;</span> <strong>[Error] : </strong> " + data["error"];
+                        message.style.display = 'block';
+                        submitbut.parentElement.style.display = "none";
+
+
+
+                    }
+                    else if (data['status'] == "validemail") {
+                        otpdiv.style.display = "block";
+                        spinner.style.display = 'none';
+
+                        submitbut.innerText = "Verify";
+
+                        authkey.value = data["auth"];
+                        tokenid.value = data["token"];
+                        authkey.for = "otpver";
+                        message.innerHTML = "<span class='closebtn' onclick='closeBtn(this)'>&times;</span> Please check your email for verification code we just sent you and enter that code in OTP box.";
+                        message.style.display = 'block';
+                        otpinput.focus();
+
+
+                    }
+
+
+
+                }
+
+                else {
+                    console.log("error in data fetching");
+                }
+
+            }
+
+            else if (authkey.for == "otpver") {
+                let otp = otpinput.value;
+                otpinput.readOnly = true;
+                console.log("OTP ==> ", otp);
+
+                spinner.style.display = 'block';
+                submitbut.innerText = "";
+
+                data = await sendCommandToServer("verifyotp", tokenid.value, authkey.value, otp)
+
+
+                if (data != 0) {
+
+                    if (data['status'] == "error") {
+                        spinner.style.display = 'none';
+
+                        if (data['error_code'] == 0){
+                            submitbut.parentElement.style.display = "none";
+                            message.innerHTML = "<strong>[Error] : </strong> " + data["error"];
+                            otpdiv.style.display = "none";
+                            formdataid.setAttribute("action", "none")
+
+                        }
+
+                        else if (data['error_code'] == 1) {
+                            tokenid.value = data["token"];
+                            submitbut.innerText = "Verify Again";
+                            message.innerHTML = "<span class='closebtn' onclick='closeBtn(this)'>&times;</span> <strong>[Invalid OTP] : </strong> " + data["error"];
+                            otpinput.readOnly = false;
+
+                        }
+
+                        else if (data['error_code'] == 2) {
+                            tokenid.value = data["token"];
+                            submitbut.innerText = "Try again";
+                            message.innerHTML = "<span class='closebtn' onclick='closeBtn(this)'>&times;</span> " + data["error"];
+                            otpinput.readOnly = false;
+                            otpinput.value = "";
+                        }
+
+                        message.style.display = 'block';
+
+
+                    }
+
+                    else if (data['status'] == "validotp") {
+
+                        tokenid.value = data["token"];
+
+                        otpinput.style.display = "none";
+                        placeholderotp.style.display = "none";
+
+                        phonenumdiv.style.display = "block";
+
+                        spinner.style.display = 'none';
+                        submitbut.innerText = "Next";
+                        message.innerHTML = "<span class='closebtn' onclick='closeBtn(this)'>&times;</span>Email is verified. Now enter mobile number in the box below.";
+                        message.style.display = 'block';
+
+                        formdataid.setAttribute("action", "/signup")
+                    }
+                }
+
+                else {
+                    console.log("Wrong otp");
+                }
+
+
+
+            }
+
+        }
+
+
+
+
+        async function sendCommandToServer(action, token, auth, val) {
+            return await fetch(`${window.origin}/signup?action=${action}&token=${token}&auth=${auth}&val=${val}&from=fetch`, {
+                method: "GET",
+                headers: {
+                    'Accept': 'application/json',
+                    'action': action,
+                    'token': token,
+                    'auth': auth,
+                    'val': val,
+                }
+
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                console.log('Data==>', data);
+                if ('status' in data) {
+                    return data
+                }
+                else {
+                    return 0;
+                }
+            });
+        }
+
+        function closeBtn(elmt) {
+            var div = elmt.parentElement;
+            div.style.display = "none";
+        }
+
+    </script>
+</body>
+
+</html>

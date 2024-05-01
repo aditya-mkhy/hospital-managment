@@ -37,6 +37,9 @@ def home(request: HttpRequest):
 
     if request.user.is_doctor:
         context["user"] = "Doctor"
+
+    context["email"] = request.user.email
+    context["profile"] =  request.user.propath
     
     return render(request, "dashboard.html", context=context)
     

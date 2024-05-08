@@ -8,8 +8,8 @@ import re, os,time
 from . import  sendEmail
 from helthcare.validator import Validator
 from django.conf import settings
-
-
+from datetime import datetime
+from django.utils import timezone
 
 
 send_email = sendEmail.Email()
@@ -28,28 +28,216 @@ def check(email):
 def home(request: HttpRequest):
     if request.user.is_anonymous:
         return redirect("/login")
-    
+
+
     context = {
         "full_name" : f"{request.user.first_name} {request.user.last_name}"
     }
 
-    context["user"] = "Patient"
+    context["user"] = request.user
 
-    if request.user.is_doctor:
-        context["user"] = "Doctor"
+    category = request.GET.get("catg")
+    print(f"get_catgory => {category}")
 
-    context["email"] = request.user.email
+    selected_catg = None
+    if category != None:
+        selected_catg = models.Catgory.objects.get(id=category)
+        if selected_catg:
+            print(f"selected => {category}")
+            context["selected_catg"] = selected_catg
+
+    context["catgory_obj"] = models.Catgory.objects.all()
+    if selected_catg:
+        blogs_obj = models.Blog.objects.filter(catgory=selected_catg, is_draft=False)
+    else:
+        blogs_obj = models.Blog.objects.all().exclude(is_draft=True)
+    print(f"blog==> {blogs_obj}")
+
+    context["blogs_obj"] = blogs_obj
+    context["user"] = request.user
+
+    return render(request, "home.html", context=context)
+
+
+def myblog(request: HttpRequest):
+    if request.user.is_anonymous:
+        return redirect("/login")
+
+    if not request.user.is_doctor:
+        return redirect("/")
+
+
+    context = {}
+    context["user"] = request.user
+    context["blogs_obj"] = models.Blog.objects.filter(user=request.user).exclude(is_draft=True)
+
+    return render(request, "myblog.html", context=context)
+
+
+def draft(request: HttpRequest):
+    if request.user.is_anonymous:
+        return redirect("/login")
+
+    if not request.user.is_doctor:
+        return redirect("/")
+
+
+    context = {}
+    context["user"] = request.user
+    context["blogs_obj"] = models.Blog.objects.filter(user=request.user).exclude(is_draft=False)
+
+    return render(request, "draft.html", context=context)
+
+def view_blog(request: HttpRequest):
+    if request.user.is_anonymous:
+        return redirect("/login")
+
+
+    blog_id = request.GET.get("blog")
+    title = request.GET.get("title")
+
+    print(f"blogid==> {blog_id}")
+
+    print(f"title==> {title}")
+
+    context = {}
+    context["user"] = request.user
+
+    if blog_id == None:
+        return HttpResponse("None is found as blog")
+
+    blog = models.Blog.objects.get(id=blog_id)
+    context["blog"] = blog
+
+    print(f"blog ==> {blog}")
+    if not blog:
+            return HttpResponse("Hey, what are you doing, just follow the likn")
+
+    return render(request, "detailedpost.html", context=context)
+
+
+
+def write_blog(request: HttpRequest):
+    if request.user.is_anonymous:
+        return redirect("/login")
+
+    if not request.user.is_doctor:
+        return redirect("/")
+
+    edit_blog_id = request.GET.get("blog")
+
+
+    if request.method == "POST":
+        title = request.POST.get("title", "")
+        catgory = request.POST.get("catgory", "")
+        summary = request.POST.get("summary", "")
+        content = request.POST.get("content", "")
+        blog_id = request.POST.get("blogid", None)
+        action = request.POST.get("action")
+
+        print(f"Action===> {action}")
+
+        is_draft = False
+        if action == "Draft":
+            is_draft = True
+
+
+        print(f"title ==> {title}")
+        print(f"catgory ==> {catgory}")
+        print(f"summary ==> {summary}")
+        print(f"content ==> {content}")
+        print(f"is_draft ==> {is_draft}")
+
+        try:
+            int(blog_id)
+        except:
+            blog_id = None
+
+
+        updated = timezone.now()
+        catgory = models.Catgory.objects.get(id=catgory)
+
+        print("block--> ", blog_id)
+        blog = None
+        if blog_id != None:
+            print("blogid--> ", blog_id)
+            blog = models.Blog.objects.get(id = blog_id)
+
+            if blog.user != request.user:
+                return HttpResponse("This doesn't belogs to you")
+
+            if not blog.is_draft:
+                return HttpResponse("Can't edit the blog wich is already plosted, only drafts can be edited")
+
+
+
+        if blog:
+            blog.title = title
+            blog.catgory = catgory
+            blog.summary = summary
+            blog.content = content
+            blog.updated = updated
+            blog.is_draft = is_draft
+            blog.save(update_fields=['title', 'catgory', 'summary', 'content', 'updated', 'is_draft'])
+
+        else:
+            blog = models.Blog(user = request.user, catgory = catgory,
+                            title = title, summary = summary,
+                            content = content, updated = updated,
+                            is_draft = is_draft)
+            blog.save()
+
+
+
+
+        file = request.FILES.get("file")
+
+        if file:
+            file_name = f"blog_{blog.id}_{request.user.email}{os.path.splitext(file.name)[1]}"
+            full_path = f"{settings.BASE_DIR}/static/blog/{file_name}"
+
+            with open(full_path, 'wb') as dest:
+                for chunk in file.chunks():
+                    dest.write(chunk)
+            blog.file = file_name
+            blog.save(update_fields=['file'])
+
+        edit_blog_id = None
+
+
+
+
+    context = {"full_name" : f"{request.user.first_name} {request.user.last_name}"}
+
+
+    context["update" ] = "No Update"
     context["profile"] =  request.user.propath
-    
-    return render(request, "dashboard.html", context=context)
-    
-    
-    
+    context["catgory_obj"] = models.Catgory.objects.all()
+
+    if edit_blog_id != None:
+        blog_obj = models.Blog.objects.get(id=edit_blog_id)
+        if blog_obj and blog_obj.user == request.user:
+            if blog_obj.is_draft:
+                context["title" ] = blog_obj.title
+                context["update" ] = blog_obj.updated
+                context["summary" ] = blog_obj.summary
+                context["image" ] = blog_obj.file
+                context["selected_catgory" ] = blog_obj.catgory
+                context["content" ] = blog_obj.content
+                context["blogid"] = blog_obj.id
+
+            else:
+                return HttpResponse("Can't edit the blog wich is already plosted, only drafts can be edited")
+
+    context["user"] = request.user
+    return render(request, "blog.html", context=context)
+
+
 def signup(request: HttpRequest):
     if request.user.is_anonymous:
         return redirect("/login")
 
-    
+
 def logout_user(request: HttpRequest):
     logout(request)
     return redirect("/login")
@@ -60,7 +248,7 @@ def forgot(request: HttpRequest):
 
 
 
-    
+
 
 #____LOGIN________PAGE_______________________________
 def login_user(request):
@@ -78,7 +266,7 @@ def login_user(request):
         if user is not None:
             login( request , user)
             return redirect('/')
-        
+
         else:
             # No backend authenticated the credentials
             profile_obj = models.MyUser.objects.filter(email=username).first()
@@ -96,7 +284,7 @@ def logout_user(request):
     logout(request)
     return redirect('/login')
 
-    
+
 def genSessionId(len_ = 50, idList= []):
     data = "zxcvbnmasdfghjklqwertyuiop1234567890ZXCVBNMASDFGHJKLQWERTYUIOP"
     id_ = ""
@@ -383,7 +571,7 @@ def signupuser(request : HttpRequest):
 
             if token != signup_data[authkey]['token']:
                 return JsonResponse({"error" : "invalid token"})
-            
+
 
             if passwd == confirmpasswd:
                 passwd_val = Validator(passwd = passwd, email=signup_data[authkey]['email'], name=f"{signup_data[authkey]['fname']} {signup_data[authkey]['lname']}", username=signup_data[authkey]['username'])
@@ -443,7 +631,7 @@ def signupuser(request : HttpRequest):
                 return JsonResponse({"Error" : "email or phone is already associated to  antoher account"})
 
             profile = "man.png"
-        
+
             singup = models.MyUser(email=email, username=username, first_name=fname, last_name=lname, propath=profile)
             singup.set_password(confirmpasswd)
             singup.save()
@@ -458,29 +646,25 @@ def signupuser(request : HttpRequest):
 
 
 def profile_img(request : HttpRequest):
-
-    print("Acessing upload file page")
-
     if request.method == "POST":
-        print("aceesss")
-
         if request.user.is_anonymous:
-            print("retrn")
             return HttpResponse(status=500)
 
         email = request.user.email
-
         file_data = request.POST.get("photo")
+        is_doc = request.POST.get('doctor')
+        print(f"Is==>", is_doc)
+
+        if is_doc == "on":
+            is_doc = True
+        else:
+            is_doc = False
+
+        print(f"Is==>", is_doc)
 
         file = request.FILES['photo']
-
         file_name = f"{email}_profile{os.path.splitext(file.name)[1]}"
-
-        full_path = f"{settings.BASE_DIR}/static/profile/{file_name}"
-
-
-
-        print(f"file_name=> {file_name}")
+        full_path = f"{settings.BASE_DIR}/static/img/{file_name}"
 
         try:
             if os.path.exists(request.user.propath):
@@ -501,44 +685,76 @@ def profile_img(request : HttpRequest):
 
 
         request.user.propath = file_name
-        request.user.save(update_fields=['propath'])
-
-
-        print(f"Email ==> {email} ===> {file_data}")
-
+        request.user.is_doctor = is_doc
+        request.user.save(update_fields=['propath', 'is_doctor'])
         return HttpResponse(status=204)
-    
-    return render(request, "profile.html")
 
 
+    context = {
+        "profile" : "man.png",
+        "is_doc" : ''}
+    if not request.user.is_anonymous:
+        context["profile"] = request.user.propath
+        if request.user.is_doctor:
+            context["is_doc"] = 'checked'
+
+    return render(request, "profile.html", context=context)
 
 
 
 def test_page(request : HttpRequest):
-    # context = {
-    #     "message" : "Please create a password that is at least 8 characters in length",
-    #     "prefix" : "Hey Aditya! , ",
-    #     "fname" : "Aditya"
-    # }
+    print("test ing")
 
-    # if request.method == "POST":
+    if request.method == "POST":
+        if request.user.is_anonymous:
+            return HttpResponse(status=500)
 
-    #     passwd = request.POST.get("passwd")
-    #     confirmpasswd = request.POST.get("confirmpasswd")
+        email = request.user.email
+        file_data = request.POST.get("photo")
+        is_doc = request.POST.get('doctor')
+
+        if is_doc == "on":
+            is_doc = True
+        else:
+            is_doc = False
+
+        print(f"Is==>", is_doc)
+
+        file = request.FILES['photo']
+        file_name = f"{email}_profile{os.path.splitext(file.name)[1]}"
+        full_path = f"{settings.BASE_DIR}/static/img/{file_name}"
+
+        try:
+            if os.path.exists(request.user.propath):
+                if file_name != request.user.propath:
+                    os.remove(request.user.propath)
+                    print("File is delete")
+                else:
+                    print("File is overwrite")
+            else:
+                print("File  notfound")
+        except Exception as e:
+            print(f"Error at removing file: {e}")
 
 
-    #     passwd_val = Validator(passwd = passwd, email=request.user.email, name=request.user.full_name, phone=request.user.phone_no)
-
-    #     error = passwd_val.validate()
-
-    #     if error:
-    #         context["message"] = error
-    #         context["passwd"] = passwd
-
-    #         return render(request, "password.html", context=context)
-
-    #     else:
-    #         return HttpResponse("<h1>Welcome</h1>")
+        with open(full_path, 'wb') as dest:
+            for chunk in file.chunks():
+                dest.write(chunk)
 
 
-    return render(request, "userdetail.html")
+        request.user.propath = file_name
+        request.user.is_doctor = is_doc
+        request.user.save(update_fields=['propath', 'is_doctor'])
+        return HttpResponse(status=204)
+
+
+    context = {
+        "profile" : "man.png",
+        "is_doc" : ''}
+    if not request.user.is_anonymous:
+        context["profile"] = request.user.propath
+        if request.user.is_doctor:
+            context["is_doc"] = 'checked'
+
+    return render(request, "profile.html", context=context)
+

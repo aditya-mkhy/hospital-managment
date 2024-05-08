@@ -19,8 +19,13 @@
             <h3 id="login-head"> Choose Profile Picture</h3>
 
             {% csrf_token %}
-            <img src="/static/img/man.png" class="profile-pic" alt="me" id="output" class="user-img">
             <!-- <input id="file" class="fileimg" type="file" onchange="loadFile(event)" /> -->
+            <img src="/static/img/{{profile}}" class="profile-pic" alt="me" id="output" class="user-img">
+
+            <div class="isdoc-cont">
+                <h4>Are You Doctor</h4>
+                <input type="checkbox" name="isdoc" id="isodc" {{is_doc}}>
+            </div>
 
             <label for="file-upload" id="file-upload-labl" class="custom-file-upload">
                 Upload Profile
@@ -110,6 +115,17 @@
             text-decoration: none;
             display: none;
         }
+
+        .isdoc-cont {
+            display: flex;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            justify-content: space-between;
+        }
+
+        .isdoc-cont input {
+            margin-left: 10px;
+        }
     </style>
 
     <script>
@@ -120,23 +136,28 @@
             let formData = new FormData();
             let photo = event.target.files[0];
             let crf = document.getElementsByName("csrfmiddlewaretoken")[0];
+            let doctor = document.getElementById("isodc");
+
+            console.log(`Is_doc ==> ${doctor.value}`)
+
 
 
             formData.append("photo", photo);
+            formData.append("doctor", doctor.value)
             formData.append("csrfmiddlewaretoken", crf.value)
 
             const ctrl = new AbortController()    // timeout
             setTimeout(() => ctrl.abort(), 5000);
 
             try {
-                let r = await fetch('/profile',
+                let r = await fetch(`${window.origin}/test`,
                     { method: "POST", body: formData, signal: ctrl.signal });
                 console.log('HTTP response code:', r.status);
-                
+
                 document.getElementById("file-upload-labl").style.display = "none";
                 document.getElementById("next").style.display = "inline";
 
-                
+
             } catch (e) {
                 console.log(' problem...:', e);
             }

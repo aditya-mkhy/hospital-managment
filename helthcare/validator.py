@@ -121,18 +121,8 @@ class Validator:
         if error:
             return error
 
-    
+
 
         return False
 
 
-
-
-
-if __name__ == "__main__":
-    passwd = "mahadeAditmk65765@"
-
-    valid = Validator(passwd=passwd, email="mahadev@gmail.com", name="Aditya Mukhiya", phone="6230658655")
-
-    error = valid.validate()
-    print(f"Error==> {error}")

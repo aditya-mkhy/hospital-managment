@@ -64,7 +64,8 @@ class MyUser(AbstractBaseUser):
 
     def __str__(self):
         return self.email
-    
+
+    @property
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -93,10 +94,48 @@ class Address(models.Model):
     pin_code = models.CharField(verbose_name="Pin code", max_length=8)
 
     user = models.ForeignKey(MyUser, verbose_name="User", on_delete=models.SET_NULL, null=True)
-    
+
 
     def __str__(self) -> str:
         return f"{self.user}-{self.city}"
-    
+
+class Catgory(models.Model):
+    blog_catgory = models.CharField(verbose_name="Catogray", max_length=30)
+
+    def __str__(self) -> str:
+        return self.blog_catgory
+
+
+class Blog(models.Model):
+    user = models.ForeignKey(MyUser, verbose_name="User", on_delete=models.SET_NULL, null=True)
+    catgory = models.ForeignKey(Catgory, verbose_name="Catgory", on_delete=models.SET_NULL, null=True)
+    title = models.CharField(verbose_name="Tile", max_length=200)
+    summary = models.CharField(verbose_name="Summary", max_length=500)
+    content = models.TextField(verbose_name="Content")
+    updated = models.DateTimeField(verbose_name="Time")
+    file = models.CharField(verbose_name="Image", max_length=100, null=True)
+    is_draft = models.BooleanField(verbose_name="Is_Draft",  default=False)
+
+    def __str__(self) -> str:
+        return f"{self.title}-{self.user}"
+
+    @property
+    def get_summary(self):
+        summary = str(self.summary).split(" ")
+        short = []
+        count = 0
+
+        for word in summary:
+            if len(word) > 0:
+                short.append(word)
+                count += 1
+
+                if count >= 15:
+                    short.append("......")
+                    break
+
+        return " ".join(short)
+
+
 
 

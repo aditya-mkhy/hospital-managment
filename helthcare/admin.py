@@ -5,3 +5,5 @@ from . import models
 
 admin.site.register(models.MyUser)
 admin.site.register(models.Address)
+admin.site.register(models.Catgory)
+admin.site.register(models.Blog)
